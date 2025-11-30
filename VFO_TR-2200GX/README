@@ -1,82 +1,26 @@
-/* WSPR beacon with WM-386 (ESP6288 clone),SI5351, SSD1306 0.91, TinyGSP" 
+ESP-VFO.  VFO for TR-2200GX receiption from apprx. 44.4333 - 45.1000 MHz  Proof of Concept only.
 
-Version 1.2
-  - changed gps/wifi routines 
-    1. if gps is enabled in configuration (default) then program will try to lock and get the time from the gps and update the locator
-          and if the gps is ok the program will create an AP to serve the configuration webpage on host ESP-WSPR IP: 192.168.4.1 
-    2. if no gps or no lock the WiFimanager will try to login to the given SSID network
-          and if done it will run the NTP routine and start a webservers on the assigned local IP address.
-    3. if no network connection established the program will create a captive page on ESP-WSPR 192.168.4.1 to cature the 
-          SSID and password. Therafter it will resync.
-  - changed pin assignments D5 and D7 vor LPF
+----V1.0----
 
-Version 1.1
-  - Added dloading default values when EEPROM has not ben used before
-  - corrected maidenhead.h library name
-  - improved calibration html page
-  - improved comments
-  - some cosmetic code changes
+The desired rxfreq = (Frequency MHz - 10.7 MHz) / 3
+Output on CLK0 of Si5351. Using ESP8266 clone to have WiFi access and .91" OLED as extra.
 
-Verion 1.0
-Modified and improved script from ESP_WSPR sketch from PD0GB and PA3FBX
-  - Web interface for configuration panel
-  - Calibration also via the web interface
-  - SSD1306 info panel texts completely revised
-  - Extra debug messages via Serial
-  - WSPR interval configurable via the web interface
-  - SI5351 CLK2 fixed at 10 MHz continuously for stabilization
-  - Warmup period removed 
-  - Cleanup of unused code and variables
-  - GPS support on PIO D3 (can conflict during boot / reset)
-  - Read locator from GPS when GPS is enabled
+Minimal PoC with control through webserver only. No encoder or knobs.
 
-Using a WM-386 (an ESP6288 clone variant).
-With this, we can build a WSPR transmitter with:
-  - Up to 3 bands with LPF switching (d5, D6, D7)
-  - Use the buildin led - D4 PIO for indicating Webinterface active
-  - Use a TinyGPS on PIO D3 
-  - Time Sync using NTP
-  - Provide a configuration possibility through WiFi accessable webwerver
+Sketch will:
+- Initialise the Si5351 and generate the appropriate VFO frequency with low output (2MA).
+- Create webserver and one page which will display the current frequency, has up/down knobs and a bunch of Presets.
+- Change the frequency based on the webserver requests.
 
-Time synchronization is selectable via WiFi NTP server or optional GPS.
+- Currently no transmit frequency is generated. Early tests showed some interference and complexity as the 
+  frequency generated is frequency MHz / 12  (so the signal will interfere with the receiption) thus the signal needs 
+  to be switched on only when the PTT is pressed.
+  Also because the TR-2200GX is missing CTCSS and I have other rigs around the need to continue the PoC was not apperent.
+  The Busy signal from the TR-2200GX can be used to switch on the TX signal but you need to have a clean(er)
+  generated signal to have a good stable signal and FM modulation. So additional filtering around 12 MHz and a robust and
+  jitterfree signal needs to be generated.
 
-Hardware: Wemos D1 Mini, Si5351 module, 128x64 I2C OLED display, a few LEDs (optional)  
-
-On first startup, if no WiFi credentials are stored, the ESP will switch into Access Point mode.  
-SSID = "WSPR_ConfigAP"  no password.  
-
-Connect your phone/laptop to this network the captive portal is available at 192.168.4.1  
-A configuration page appears after can enter or select the avilable WiFi SSID and enter the password.
-Click “Save”. The ESP will then connect to your local WiFi.  
- 
-The unit will restat an show the local WiFi IP adress on the SSD1306 screen during booting.
-Log in through your home network to enter the WSPR credetials and parameters:
-  - Callsign
-  - Locator
-  - dBm (output power setting)
-  - Calibration factor  (update through calibration routine)
-  - Transmission interval in minutes after start of message or cycle
-  - GPS enable/disable
-  - Band mask x y z selecting 40 meter, 20 meter, 10 meter or multiple
-  - GPS enable
-  - OLED rotate
-  - Reset WiFi - set to 9 to reseter the local WiFi SSID and Password 
-You can also switch the unit into Calibration or Testloop.
-
-
-//Used libraries  
-Etherkit Si5351 by Jason Mildrum, version 2.2.0  
-Etherkit JTEncode by Jason Mildrum, version 1.3.1  
-NTPtimeESP  
-TimeLib by Michael Margolis, version 1.6.1  
-WiFiManager by tzapu, version 2.0.17  
-Adafruit GFX Library by Adafruit, version 1.12.1  
-Adafruit SSD1306 by Adafruit, version 2.5.15  
-Adafruit BusIO (I2C)  
-EspSoftwareSerial by Dirk Kaar, version 8.1.0  
-TinyGPSPlus by Mikal Hart, version 1.0.3  
-Maidenhead by Mateusz Salwach, version 1.0.1  
-
-Version: 2025-10-04
-by Johan, PA3ANG
-https://github.com/pa3ang
+- To calibration de Si5351 TCXO and thus the VFO a function is available.
+  The frequency will be 10 MHz (1000000000) and adjust with the knobs as close as possible.
+  Save will store the cal_factor in EEPROM and reboot the VFO to the start frtequency 145.500 MHz.
+  Cancel will stop the calibration and return to the last selected VFO frequency.
