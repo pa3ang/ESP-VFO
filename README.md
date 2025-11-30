@@ -9,4 +9,4 @@ The program has been created as PoC for using with a TR-2200GX but can be altere
 
 vy 73 de Johan, PA3ANG https://pa3ang.nl
 
-more info in my weblog https://pa3ang.nl/esp6288-wspr/](https://pa3ang.nl/1977-tr-2200gx-pd0cjh/
+more info in my weblog https://pa3ang.nl/1977-tr-2200gx-pd0cjh/
