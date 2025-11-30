@@ -54,8 +54,8 @@ uint32_t rx_freq;               // used in calibration routine
 const uint32_t calibration_freq = 1000000000ULL;  // 10 MHz, in hundredths of hertz
 
 // WiFi en Webserver
-const char* WIFI_SSID     = "PA3ANG";
-const char* WIFI_PASSWORD = "QSTDEPA3ANGZC";
+const char* WIFI_SSID     = "YOUR SSID";
+const char* WIFI_PASSWORD = "YOUR PASSWORD";
 ESP8266WebServer server(80);
 
 // OLED display routine
